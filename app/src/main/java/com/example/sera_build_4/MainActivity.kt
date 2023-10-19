@@ -3,6 +3,7 @@ package com.example.sera_build_4
 import android.annotation.SuppressLint
 import android.content.AsyncQueryHandler
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.*
 import android.hardware.camera2.CameraCaptureSession
@@ -17,6 +18,7 @@ import android.view.TextureView
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import com.example.sera_build_4.ml.BestFloat32
+import com.example.sera_build_4i.Player
 import org.tensorflow.lite.support.image.ImageProcessor
 import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.support.image.ops.ResizeOp
@@ -32,11 +34,14 @@ class MainActivity : AppCompatActivity() {
     lateinit var cameraView: TextureView
     lateinit var camDevice: CameraDevice
     lateinit var model:BestFloat32
+    var player = Player()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+
+        player.playAudio_Scan()
         get_permission()
 
         imgProcessor = ImageProcessor.Builder().add(ResizeOp(300,300, ResizeOp.ResizeMethod.BILINEAR)).build()
@@ -108,9 +113,17 @@ class MainActivity : AppCompatActivity() {
                         labelPaint)
                 }
 
-
                 // Update the ImageView with the modified bitmap
                 imgView.setImageBitmap(mute)
+
+                val label = output.firstOrNull()?.label ?: "No Label"
+
+                // Create an Intent to start the ResultActivity
+                val intent = Intent(this@MainActivity, ProductActivity::class.java)
+                intent.putExtra("LABEL", label)
+
+                // Start the ResultActivity
+                startActivity(intent)
             }
         }
 
@@ -149,6 +162,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onError(p0: CameraDevice, p1: Int) {
+                onDestroy()
             }
         }, handler )
     }
