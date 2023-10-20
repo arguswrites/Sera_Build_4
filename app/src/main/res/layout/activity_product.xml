@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="#3374C0">
 
-    <ImageView
+    <ImageButton
         android:id="@+id/view4"
         android:layout_width="280dp"
         android:layout_height="280dp"

@@ -7,7 +7,7 @@
     android:background="#3374C0"
     tools:context=".LandingActivity">
 
-    <ImageView
+    <ImageButton
         android:id="@+id/view"
         android:layout_width="280dp"
         android:layout_height="280dp"

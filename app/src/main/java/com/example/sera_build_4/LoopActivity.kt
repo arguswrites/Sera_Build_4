@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
+import android.view.View
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.sera_build_4i.Player
@@ -103,6 +104,11 @@ class LoopActivity : AppCompatActivity() {
 
     companion object {
         private const val RECORD_AUDIO_PERMISSION_CODE = 1
+    }
+
+    private fun onImageButtonClick(view: View) {
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
     }
 }
 

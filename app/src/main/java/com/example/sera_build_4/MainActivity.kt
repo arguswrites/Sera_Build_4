@@ -13,8 +13,10 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
+import android.speech.SpeechRecognizer
 import android.view.Surface
 import android.view.TextureView
+import android.view.View
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import com.example.sera_build_4.ml.BestFloat32
@@ -35,6 +37,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var camDevice: CameraDevice
     lateinit var model:BestFloat32
     var player = Player()
+    private lateinit var speechRecognizer: SpeechRecognizer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -185,6 +188,12 @@ class MainActivity : AppCompatActivity() {
         if(grantResults[0] != PackageManager.PERMISSION_GRANTED){
             get_permission()
         }
+    }
+
+
+    private fun onImageButtonClick(view: View) {
+        val intent = Intent(this, LoopActivity::class.java)
+        startActivity(intent)
     }
 
 }

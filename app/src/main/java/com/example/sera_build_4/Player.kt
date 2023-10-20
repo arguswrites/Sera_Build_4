@@ -124,7 +124,7 @@ class Player : AppCompatActivity(){
 
                 tts.language = Locale.US
                 tts.setSpeechRate(0.9f)
-                tts.speak("/*insert code for text*/", TextToSpeech.QUEUE_ADD, null)
+                tts.speak("Shall we proceed?", TextToSpeech.QUEUE_ADD, null)
             }
         })
 

@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="#2FB45C">
 
-    <ImageView
+    <ImageButton
         android:id="@+id/LoopView"
         android:layout_width="280dp"
         android:layout_height="280dp"
