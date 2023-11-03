@@ -7,26 +7,18 @@
     android:layout_height="match_parent"
     android:background="#2FB45C">
 
-    <TextureView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/CameraView"/>
+
 
     <ImageButton
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/imageView"
-        android:background="#fff"/>
-
-    <View
-        android:id="@+id/view2"
+        android:id="@+id/imageButton"
         android:layout_width="280dp"
         android:layout_height="280dp"
-        android:background="@drawable/circle"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"></View>
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/circle"
+        android:background="@drawable/circle"/>
 
     <TextView
         android:id="@+id/textView3"

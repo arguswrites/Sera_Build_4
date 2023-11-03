@@ -8,14 +8,15 @@
     tools:context=".LandingActivity">
 
     <ImageButton
-        android:id="@+id/view"
+        android:id="@+id/imageButton"
         android:layout_width="280dp"
         android:layout_height="280dp"
-        android:background="@drawable/circle"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/circle"
+        android:background="@drawable/circle"/>
 
     <TextView
         android:id="@+id/textView2"
@@ -31,5 +32,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

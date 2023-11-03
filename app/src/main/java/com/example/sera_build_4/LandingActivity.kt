@@ -7,7 +7,9 @@ import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
+import android.util.Log
 import android.view.View
+import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -16,23 +18,20 @@ import com.example.sera_build_4i.Player
 import java.util.*
 
 class LandingActivity : AppCompatActivity() {
+
     private lateinit var speechRecognizer: SpeechRecognizer
     var player = Player()
-
+    val btn = findViewById<ImageButton>(R.id.imageButton)
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_landing)
 
-        /*
-        val buttonClick = findViewById<Button>(R.id.testYes)
-        buttonClick.setOnClickListener {
-            val intent = Intent(this, ScannerActivity::class.java)
-            startActivity(intent)
-        }
-        */
+        Log.d("Activity:", "Opened")
 
         player.playAudio_Greeting()
         player.playAudio_Start()
+
 
         // Check and request RECORD_AUDIO permission if not granted
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
@@ -47,9 +46,13 @@ class LandingActivity : AppCompatActivity() {
             startSpeechRecognition()
         }
 
+        btn.setOnClickListener(View.OnClickListener {
+                onProceed()
+        })
+
     }
 
-    fun startSpeechRecognition() {
+    private fun startSpeechRecognition() {
         val speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
         val speechRecognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
         speechRecognizerIntent.putExtra(
@@ -70,7 +73,7 @@ class LandingActivity : AppCompatActivity() {
             override fun onResults(results: Bundle) {
                 // Called when the recognition is successful and final results are available
                 val data = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                if (data != null && data.isNotEmpty()) {
+                if (!data.isNullOrEmpty()) {
                     val recognizedText = data[0]
                     handleSpeechInput(recognizedText)
                 }
@@ -94,8 +97,7 @@ class LandingActivity : AppCompatActivity() {
 
         if (recognizedText.equals(command, ignoreCase = true)) {
             // Start the new activity
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
+            onProceed()
         } else {
             // Command not recognized
             player.playAudio_notRecognized()
@@ -107,10 +109,11 @@ class LandingActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val RECORD_AUDIO_PERMISSION_CODE = 1
+        const val RECORD_AUDIO_PERMISSION_CODE = 1
     }
-    private fun onImageButtonClick(view: View) {
+    private fun onProceed() {
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
+        Log.d("Activity:", "Closed")
     }
 }

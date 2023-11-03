@@ -9,8 +9,10 @@ import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.speech.tts.TextToSpeech
+import android.util.Log
 import android.view.View
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -23,17 +25,19 @@ class ProductActivity : AppCompatActivity() {
     private lateinit var speechRecognizer: SpeechRecognizer
     lateinit var tts: TextToSpeech
     var player = Player()
+    val btn = findViewById<ImageButton>(R.id.imageButton)
 
+    @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_product)
 
+        Log.d("Activity:", "Opened")
+
         val label = intent.getStringExtra("LABEL") ?: "No Label"
 
-        // Find the TextView in your layout
         val resultTextView: TextView = findViewById(R.id.textView4)
 
-        // Set the label to the TextView
         resultTextView.text = label
 
         tts  = TextToSpeech(applicationContext, TextToSpeech.OnInitListener {
@@ -60,6 +64,10 @@ class ProductActivity : AppCompatActivity() {
         } else {
             startSpeechRecognition()
         }
+
+        btn.setOnClickListener(View.OnClickListener {
+            onProceed()
+        })
     }
 
     fun startSpeechRecognition() {
@@ -110,9 +118,7 @@ class ProductActivity : AppCompatActivity() {
         val command = "yes"
 
         if (recognizedText.equals(command, ignoreCase = true)) {
-            // Start the new activity
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
+            onProceed()
         } else {
             // Command not recognized
             player.playAudio_notRecognized()
@@ -127,8 +133,9 @@ class ProductActivity : AppCompatActivity() {
         private const val RECORD_AUDIO_PERMISSION_CODE = 1
     }
 
-    private fun onImageButtonClick(view: View) {
-        val intent = Intent(this, MainActivity::class.java)
+    private fun onProceed() {
+        val intent = Intent(this, LoopActivity::class.java)
         startActivity(intent)
+        Log.d("Activity:", "Closed")
     }
 }
