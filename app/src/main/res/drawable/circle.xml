@@ -7,7 +7,7 @@
     </solid>
     <stroke
         android:color="@color/white"
-        android:width="32px" >
+        android:width="32px">
     </stroke>
 
 </shape>

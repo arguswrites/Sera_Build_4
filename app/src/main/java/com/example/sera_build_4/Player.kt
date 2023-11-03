@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import java.util.*
 
 
+@Suppress("DEPRECATION")
 class Player : AppCompatActivity(){
 
     private lateinit var mediaPlayer: MediaPlayer
@@ -40,7 +41,6 @@ class Player : AppCompatActivity(){
 
     fun playAudio_Start() {
 
-
         try {
 
             tts  = TextToSpeech(applicationContext, TextToSpeech.OnInitListener {
@@ -60,7 +60,6 @@ class Player : AppCompatActivity(){
     }
 
     fun playAudio_notRecognized() {
-
 
         try {
 
@@ -125,6 +124,18 @@ class Player : AppCompatActivity(){
                 tts.language = Locale.US
                 tts.setSpeechRate(0.9f)
                 tts.speak("Shall we proceed?", TextToSpeech.QUEUE_ADD, null)
+            }
+        })
+
+    }
+
+    fun playAudio_Closing(){
+        tts  = TextToSpeech(applicationContext, TextToSpeech.OnInitListener {
+            if(it== TextToSpeech.SUCCESS){
+
+                tts.language = Locale.US
+                tts.setSpeechRate(0.9f)
+                tts.speak("I am now closing. Till next time.", TextToSpeech.QUEUE_ADD, null)
             }
         })
 

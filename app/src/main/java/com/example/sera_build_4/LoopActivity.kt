@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
+import android.util.Log
 import android.view.View
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -24,7 +25,8 @@ class LoopActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_rep)
 
-        //Play prompt audio
+        Log.d("Activity:", "Opened")
+
         player.playAudio_Loop()
 
         // Check and request RECORD_AUDIO permission if not granted
@@ -86,14 +88,15 @@ class LoopActivity : AppCompatActivity() {
 
     private fun handleSpeechInput(recognizedText: String) {
         // Compare recognizedText with desired command or keyword
-        val command = "yes"
+        val commandA= "yes"
+        val commandB = "no"
 
-        if (recognizedText.equals(command, ignoreCase = true)) {
-            // Start the new activity
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
+        if (recognizedText.equals(commandA, ignoreCase = true)) {
+            onProceed()
+        } else if (recognizedText.equals(commandB, ignoreCase = true)) {
+            player.playAudio_Closing()
+            finish()
         } else {
-            // Command not recognized
             player.playAudio_notRecognized()
         }
     }
@@ -106,9 +109,10 @@ class LoopActivity : AppCompatActivity() {
         private const val RECORD_AUDIO_PERMISSION_CODE = 1
     }
 
-    private fun onImageButtonClick(view: View) {
-        val intent = Intent(this, MainActivity::class.java)
+    private fun onProceed() {
+        val intent = Intent(this, LandingActivity::class.java)
         startActivity(intent)
+        Log.d("Activity:", "Closed")
     }
 }
 

@@ -1,5 +1,6 @@
 package com.example.sera_build_4
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.AsyncQueryHandler
 import android.content.Context
@@ -13,162 +14,115 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
+import android.util.Log
 import android.view.Surface
 import android.view.TextureView
 import android.view.View
+import android.widget.ImageButton
 import android.widget.ImageView
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.sera_build_4.ml.BestFloat32
 import com.example.sera_build_4i.Player
 import org.tensorflow.lite.support.image.ImageProcessor
 import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.support.image.ops.ResizeOp
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
 
-    val paint = Paint()
-    lateinit var imgProcessor: ImageProcessor
-    lateinit var bmp: Bitmap
-    lateinit var imgView: ImageView
-    lateinit var handler: Handler
-    lateinit var camMan: CameraManager
-    lateinit var cameraView: TextureView
-    lateinit var camDevice: CameraDevice
-    lateinit var model:BestFloat32
+
     var player = Player()
     private lateinit var speechRecognizer: SpeechRecognizer
+    val btn = findViewById<ImageButton>(R.id.imageButton)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        Log.d("Activity:", "Opened")
 
         player.playAudio_Scan()
         get_permission()
 
-        imgProcessor = ImageProcessor.Builder().add(ResizeOp(300,300, ResizeOp.ResizeMethod.BILINEAR)).build()
-
-        model = BestFloat32.newInstance(this)
-
-        val handlerThread = HandlerThread("imageThread")
-        handlerThread.start()
-        handler = Handler(handlerThread.looper)
-
-        imgView = findViewById(R.id.imageView)
-        cameraView = findViewById(R.id.CameraView)
-
-        cameraView.surfaceTextureListener = object:TextureView.SurfaceTextureListener {
-            override fun onSurfaceTextureAvailable(p0: SurfaceTexture, p1: Int, p2: Int) {
-                open_camera()
-            }
-
-            override fun onSurfaceTextureSizeChanged(p0: SurfaceTexture, p1: Int, p2: Int) {
-            }
-
-            override fun onSurfaceTextureDestroyed(p0: SurfaceTexture): Boolean {
-                return false
-            }
-
-            // Inside the onSurfaceTextureUpdated method
-            override fun onSurfaceTextureUpdated(p0: SurfaceTexture) {
-                bmp = cameraView.bitmap!!
-
-                var image = TensorImage.fromBitmap(bmp)
-                image = imgProcessor.process(image)
-
-                val outputs = model.process(image)
-                val output = outputs.outputAsCategoryList
-
-                var mute = bmp.copy(Bitmap.Config.ARGB_8888, true)
-                val canv = Canvas(mute)
-
-                // Draw rectangles for detected objects
-                val objectRectPaint = Paint()
-                objectRectPaint.color = Color.RED
-                objectRectPaint.style = Paint.Style.STROKE
-                objectRectPaint.strokeWidth = 5f
-
-                val labelPaint = Paint()
-                labelPaint.color = Color.WHITE
-                labelPaint.textSize = 24f
-
-                for (category in output) {
-
-                    // Draw a rectangle around the detected object
-                    val label = category.label
-                    val x = mute.width / 2
-                    val y = mute.height / 2
-
-                    // Draw a rectangle
-                    canv.drawRect(
-                        (x - 50).toFloat(),
-                        (y - 50).toFloat(),
-                        (x + 50).toFloat(),
-                        (y + 50).toFloat(),
-                        objectRectPaint)
-
-                    // Draw a label
-                    canv.drawText(
-                        label,
-                        (x - 50).toFloat(),
-                        (y - 60).toFloat(),
-                        labelPaint)
-                }
-
-                // Update the ImageView with the modified bitmap
-                imgView.setImageBitmap(mute)
-
-                val label = output.firstOrNull()?.label ?: "No Label"
-
-                // Create an Intent to start the ResultActivity
-                val intent = Intent(this@MainActivity, ProductActivity::class.java)
-                intent.putExtra("LABEL", label)
-
-                // Start the ResultActivity
-                startActivity(intent)
-            }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.RECORD_AUDIO),
+                LandingActivity.RECORD_AUDIO_PERMISSION_CODE
+            )
+        } else {
+            startSpeechRecognition()
         }
 
-            camMan = getSystemService(Context.CAMERA_SERVICE) as CameraManager
-
+        btn.setOnClickListener(View.OnClickListener {
+            onProceed()
+        })
     }
 
+    private fun startSpeechRecognition() {
+        val speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
+        val speechRecognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+        speechRecognizerIntent.putExtra(
+            RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+            RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+        )
+        speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+
+        speechRecognizer.setRecognitionListener(object : RecognitionListener {
+            override fun onReadyForSpeech(bundle: Bundle?) {}
+            override fun onBeginningOfSpeech() {}
+            override fun onRmsChanged(v: Float) {}
+            override fun onBufferReceived(bytes: ByteArray?) {}
+            override fun onEndOfSpeech() {}
+
+            override fun onError(i: Int) {}
+
+            override fun onResults(results: Bundle) {
+                // Called when the recognition is successful and final results are available
+                val data = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                if (!data.isNullOrEmpty()) {
+                    val recognizedText = data[0]
+                    handleSpeechInput(recognizedText)
+                }
+            }
+
+            override fun onPartialResults(bundle: Bundle) {}
+            override fun onEvent(i: Int, bundle: Bundle?) {}
+
+        })
+
+        val speechIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+        speechIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+        speechIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+
+        speechRecognizer.startListening(speechIntent)
+    }
+
+    private fun handleSpeechInput(recognizedText: String) {
+        // Compare recognizedText with desired command or keyword
+        val command = "yes"
+
+        if (recognizedText.equals(command, ignoreCase = true)) {
+            // Start the new activity
+            onProceed()
+        } else {
+            // Command not recognized
+            player.playAudio_notRecognized()
+        }
+    }
     override fun onDestroy() {
         super.onDestroy()
-        model.close()
+        speechRecognizer.destroy()
     }
 
     @SuppressLint("MissingPermission")
-    fun open_camera(){
-        camMan.openCamera(camMan.cameraIdList[0], object: CameraDevice.StateCallback(){
-            override fun onOpened(p0: CameraDevice) {
-                camDevice = p0
 
-                var planeView = cameraView.surfaceTexture
-                var plane = Surface(planeView)
-
-                var imagerequest = camDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
-                imagerequest.addTarget(plane)
-
-                camDevice.createCaptureSession(listOf(plane),object: CameraCaptureSession.StateCallback(){
-                    override fun onConfigured(p0: CameraCaptureSession) {
-                        p0.setRepeatingRequest(imagerequest.build(), null, null)
-                    }
-
-                    override fun onConfigureFailed(p0: CameraCaptureSession) {
-                    }
-                }, handler)
-            }
-
-            override fun onDisconnected(p0: CameraDevice) {
-            }
-
-            override fun onError(p0: CameraDevice, p1: Int) {
-                onDestroy()
-            }
-        }, handler )
-    }
 
     fun get_permission(){
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED){
@@ -190,10 +144,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
-    private fun onImageButtonClick(view: View) {
-        val intent = Intent(this, LoopActivity::class.java)
+    private fun onProceed() {
+        val intent = Intent(this, ProductActivity::class.java)
         startActivity(intent)
+        Log.d("Activity:", "Closed")
     }
 
 }
